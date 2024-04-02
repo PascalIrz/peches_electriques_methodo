@@ -12,10 +12,13 @@ stations <- readxl::read_xlsx(path = data_file,
 
 data <- readxl::read_xlsx(path = data_file,
                           sheet = "mesures annuelles") %>% 
+  left_join(y = stations) %>% 
   mutate(intensite = ifelse(is.na(intensite) & !is.na(voltage),
                             yes = 1000 * puissance / voltage,
-                            no = intensite)) %>% 
-  left_join(y = stations)
+                            no = intensite),
+         a_pied = ifelse(str_detect(protocole, pattern = "EPA pied|Inv"), TRUE, FALSE)) %>% 
+  filter(a_pied)
+
 
 data <- data %>% 
   select(station, dept:prof_mes, annee, everything()) %>% 
